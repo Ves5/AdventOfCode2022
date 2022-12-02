@@ -2,10 +2,11 @@
 # Win = 6; Draw = 3; Loss = 0
 # rock < paper < scissors < rock
 
-opponent = ['A', 'B', 'C',]
-you = ['X', 'Y', 'Z']
+#part 2
+# x = loss; y = draw; z = win
 
-points = {'X': 1, 'Y': 2, 'Z': 3}
+#points = {'X': 1, 'Y': 2, 'Z': 3}
+matches = {'A': {'X': 0+3, 'Y': 3+1, 'Z': 6+2}, 'B': {'X': 0+1, 'Y': 3+2, 'Z': 6+3}, 'C': {'X': 0+2, 'Y': 3+3, 'Z': 6+1}}
 result = 0
 
 with open("day2/moves.txt") as f:
@@ -13,12 +14,8 @@ with open("day2/moves.txt") as f:
     moves = [x.strip().split(' ') for x in moves]
     #print(moves)
     for pair in moves:
-        result += points[pair[1]]
-        # draw
-        if opponent.index(pair[0]) == you.index(pair[1]):
-            result += 3
-        elif pair[0]:
-            pass
+        #result += points[pair[1]]
+        result += matches[pair[0]][pair[1]]
         # loss without anything
 
 print(result)
