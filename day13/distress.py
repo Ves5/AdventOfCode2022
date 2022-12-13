@@ -1,37 +1,40 @@
+from functools import cmp_to_key
 import json
 
-def check_order(p1, p2) -> bool:
-    for i in range(max(len(p1), len(p2))):
-        # left side runs out faster - correct order
-        if i >= len(p1):
-            return True
-        # right side runs out faster - incorrect order
-        if i >= len(p2):
-            return False
-        # both items are lists - go deeper
-        if isinstance(p1[i], list) and isinstance(p2[i], list):
-            # if it returned false then finish function
-            if not check_order(p1[i], p2[i]):
-                return False
-            continue
-        # left is not a list - go deeper after [left]
-        if not isinstance(p1[i], list) and isinstance(p2[i], list):
-            if not check_order([p1[i]], p2[i]):
-                return False
-            continue
-        # right is not a list - go deeper after [right]
-        if isinstance(p1[i], list) and not isinstance(p2[i], list):
-            if not check_order(p1[i], [p2[i]]):
-                return False
-            continue
+def check_order(p1, p2) -> int:
+    for left, right in zip(p1, p2):
         # both items are integers
-        if p1[i] < p2[i]:
-            return True
-        elif p1[i] == p2[i]:
+        if isinstance(left, int) and isinstance(right, int):
+            if left < right:
+                return 1
+            elif left > right:
+                return -1
             continue
-        else:
-            return False
-    return True
+        # both items are lists - go deeper
+        elif isinstance(left, list) and isinstance(right, list):
+            tmp = check_order(left,right)
+            if tmp == 0:
+                continue
+            return tmp
+        # left is not a list - go deeper after [left]
+        elif isinstance(left, int) and isinstance(right, list):
+            tmp = check_order([left],right)
+            if tmp == 0:
+                continue
+            return tmp
+        # right is not a list - go deeper after [right]
+        elif isinstance(left, list) and isinstance(right, int):
+            tmp = check_order(left,[right])
+            if tmp == 0:
+                continue
+            return tmp
+    # left side runs out faster - correct order
+    if len(p1) < len(p2):
+        return 1
+    # right side runs out faster - incorrect order
+    elif len(p1) > len(p2):
+         return -1
+    return 0
 
 values = []
 pairs = []
@@ -43,8 +46,21 @@ with open('day13/lists.txt') as f:
         pairs.append([p1, p2])
     #print(pairs)
 
+# part 1
 for i in range(len(pairs)):
-    if not check_order(pairs[i][0], pairs[i][1]):
+    if check_order(pairs[i][0], pairs[i][1]) >= 0:
         values += [i + 1]
-        
+
 print(sum(values))
+
+# part2
+packets = []
+for pair in pairs:
+    packets.append(pair[0])
+    packets.append(pair[1])
+
+packets.append([[2]])        
+packets.append([[6]])        
+
+packets_sorted = sorted(packets, key=cmp_to_key(check_order), reverse=True)
+print((packets_sorted.index([[2]]) + 1) * (packets_sorted.index([[6]]) + 1) )
